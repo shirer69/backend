@@ -20,7 +20,7 @@ app.add_middleware(
     allow_methods=["*"],            
     allow_headers=["*"],           
 )
-app.mount("/sessions", StaticFiles(directory="sessions"), name="sessions")
+# app.mount("/sessions", StaticFiles(directory="sessions"), name="sessions")
 @app.get("/")
 async def root():
     return {"message": "Hello, FastAPI new!"}

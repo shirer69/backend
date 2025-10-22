@@ -177,7 +177,7 @@ class LoginService:
 
             session_filename = f"session_{phone.replace('+', '')}.session"
             session_path = os.path.join(session_base_path, session_filename)
-            session_download_url = f"/sessions/{session_filename}"
+            # session_download_url = f"/sessions/{session_filename}"
 
             profile_data = {
                 "id": me.id,
@@ -187,7 +187,9 @@ class LoginService:
                 "phone": me.phone,
                 "bio": me.bot_info_description if me.bot else getattr(me, 'about', None),
                 "is_bot": me.bot,
-                "session_download_url": session_download_url,
+                # "session_download_url": session_download_url,
+                "session_download_url": None,
+
             }
 
             return {
