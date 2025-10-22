@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from domain.login.schema.login_schema import LoginRequest,CodeRequest,PasswordRequest,Enable2FARequest
 from domain.login.service.login_service import LoginService
-from domain.two_fa.service.two_fa_service import Enable_2fa_password
+# from domain.two_fa.service.two_fa_service import Enable_2fa_password
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
