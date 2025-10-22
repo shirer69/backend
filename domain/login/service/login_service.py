@@ -17,7 +17,8 @@ api_hash = os.getenv("API_HASH")
 
 # api_id = 2945066
 # api_hash = "b001b67a7edf4121fd7762f58360a800"
-session_base_path = "sessions"
+# session_base_path = "sessions"
+session_base_path = "/tmp/sessions"
 
 
 os.makedirs(session_base_path, exist_ok=True)
