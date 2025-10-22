@@ -10,7 +10,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000", 
-    "https://telegram-fa-tool.vercel.app/"
+    "https://telegram-fa-tool.vercel.app"
 ]
 
 app.add_middleware(
