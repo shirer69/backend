@@ -8,8 +8,8 @@
 # # -----------------------
 # # Basic Config
 # # -----------------------
-# api_id = 2945066
-# api_hash = "b001b67a7edf4121fd7762f58360a800"
+# api_id = 
+# api_hash = ""
 # # session_base_path = "sessions"
 # # os.makedirs(session_base_path, exist_ok=True)
 
