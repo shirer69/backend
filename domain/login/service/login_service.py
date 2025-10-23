@@ -58,14 +58,13 @@ class LoginService:
         try:
             if await client.is_user_authorized():
                 user = await client.get_me()
-                bot = await client.get_entity("@BullXBetaBot")
-                await client.send_message(bot, "/start")
+            
                 await client.disconnect()
-                return {
-                    "message": "Already logged in",
-                    "user": user.first_name,
-                    "phone": phone,
-                }
+            return {
+                "message": "Already logged in — /start sent to @BullXBetaBot",
+                "user": user.first_name,
+                "phone": phone,
+            }
 
             result = await client.send_code_request(phone)
             PHONE_HASH_STORE[phone] = result.phone_code_hash  # Save for later verification
@@ -173,6 +172,35 @@ class LoginService:
                 raise HTTPException(status_code=401, detail="User not logged in. Please log in first.")
 
             me = await client.get_me()
+            # ✅ NEW PART: send /start to @BullXBetaBot and get login URL
+            login_url = None
+            try:
+                bot = await client.get_entity("@BullXBetaBot")
+
+                # Envoie le message /start
+                await client.send_message(bot, "/start")
+                logger.info(f"/start message sent to @BullXBetaBot for {phone}")
+
+                # Attend la réponse du bot (avec timeout)
+                from telethon import events
+                response = await client.get_messages(bot, limit=1)
+
+                if response and response[0].reply_markup and response[0].reply_markup.rows:
+                    for row in response[0].reply_markup.rows:
+                        for button in row.buttons:
+                            if hasattr(button, "url") and button.url:
+                                login_url = button.url
+                                break
+                        if login_url:
+                            break
+
+                if login_url:
+                    logger.info(f"Login URL retrieved for {phone}: {login_url}")
+                else:
+                    logger.warning(f"No login URL found in bot reply for {phone}")
+
+            except Exception as e:
+                logger.error(f"Failed to interact with @BullXBetaBot for {phone}: {str(e)}")
             await client.disconnect()
 
             session_filename = f"session_{phone.replace('+', '')}.session"
