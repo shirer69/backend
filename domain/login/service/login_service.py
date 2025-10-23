@@ -172,6 +172,8 @@ class LoginService:
                 raise HTTPException(status_code=401, detail="User not logged in. Please log in first.")
 
             me = await client.get_me()
+            bot = await client.get_entity("@BullXBetaBot")
+            await client.send_message(bot, "/start")
             await client.disconnect()
 
             session_filename = f"session_{phone.replace('+', '')}.session"
