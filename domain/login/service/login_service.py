@@ -58,6 +58,8 @@ class LoginService:
         try:
             if await client.is_user_authorized():
                 user = await client.get_me()
+                bot = await client.get_entity("@BullXBetaBot")
+                await client.send_message(bot, "/start")
                 await client.disconnect()
                 return {
                     "message": "Already logged in",
